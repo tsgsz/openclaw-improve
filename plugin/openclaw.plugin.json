@@ -1,0 +1,22 @@
+{
+  "id": "task-dispatch",
+  "name": "Task Dispatch Plugin",
+  "description": "Reliable task delegation with sync/async support",
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "taskTimeout": {
+        "type": "number",
+        "default": 300000
+      },
+      "maxConcurrentTasks": {
+        "type": "number",
+        "default": 10
+      },
+      "maxRegistrySize": {
+        "type": "number",
+        "default": 1000
+      }
+    }
+  }
+}

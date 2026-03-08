@@ -1,0 +1,24 @@
+{
+  "name": "openclaw-task-dispatch",
+  "version": "1.0.0",
+  "description": "OpenClaw plugin for reliable task delegation with sync/async support",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "keywords": [
+    "openclaw",
+    "plugin",
+    "task",
+    "dispatch",
+    "subagent"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^25.3.5",
+    "typescript": "^5.0.0"
+  }
+}

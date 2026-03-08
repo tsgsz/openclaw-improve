@@ -1,0 +1,26 @@
+{
+  "id": "task-dispatch",
+  "name": "task-dispatch",
+  "version": "1.0.0",
+  "description": "Reliable task delegation with sync/async support",
+  "main": "dist/index.js",
+  "author": "",
+  "license": "MIT",
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "taskTimeout": {
+        "type": "number",
+        "default": 300000
+      },
+      "maxConcurrentTasks": {
+        "type": "number",
+        "default": 10
+      },
+      "maxRegistrySize": {
+        "type": "number",
+        "default": 1000
+      }
+    }
+  }
+}
