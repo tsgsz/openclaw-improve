@@ -16,6 +16,7 @@ export interface PluginConfig {
   taskTimeout: number;
   maxConcurrentTasks: number;
   maxRegistrySize: number;
+  pollInterval?: number;
 }
 
 export interface TaskSyncParams {

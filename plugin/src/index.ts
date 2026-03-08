@@ -3,6 +3,7 @@ import { PluginConfig } from './types';
 import { createTaskSyncTool } from './tools/task-sync';
 import { createTaskAsyncTool } from './tools/task-async';
 import { createTaskCheckTool } from './tools/task-check';
+import { TaskPoller } from './poller';
 
 const plugin = {
   id: 'task-dispatch',
@@ -13,7 +14,8 @@ const plugin = {
     properties: {
       taskTimeout: { type: 'number', default: 300000 },
       maxConcurrentTasks: { type: 'number', default: 10 },
-      maxRegistrySize: { type: 'number', default: 1000 }
+      maxRegistrySize: { type: 'number', default: 1000 },
+      pollInterval: { type: 'number', default: 10000 }
     }
   },
   register(api: any) {
@@ -34,10 +36,13 @@ const plugin = {
     }
 
     const registry = new TaskRegistry(config.maxRegistrySize);
+    const poller = new TaskPoller(api, registry, config.pollInterval || 10000);
 
     api.registerTool(createTaskSyncTool(api, config));
     api.registerTool(createTaskAsyncTool(api, registry));
     api.registerTool(createTaskCheckTool(registry));
+
+    poller.start();
   }
 };
 
