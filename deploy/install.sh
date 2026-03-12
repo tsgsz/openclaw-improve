@@ -50,15 +50,14 @@ echo "==> 第二步：从 system 软链到 openclaw 各位置"
 echo "  - 软链 plugins"
 for plugin_dir in "${SYSTEM_DIR}/plugins/"*; do
     [ -d "$plugin_dir" ] || continue
-    plugin_name=$(basename "$plugin_dir")
     openclaw plugins install --link "$plugin_dir"
 done
 
-echo "  - 软链 skills"
-for skill_dir in "${SYSTEM_DIR}/workspace/skills/"*; do
+echo "  - 软链共享 skills（所有 agents 可用）"
+for skill_dir in "${SYSTEM_DIR}/skills/"*; do
     [ -d "$skill_dir" ] || continue
     skill_name=$(basename "$skill_dir")
-    target="${OPENCLAW_HOME}/workspace/skills/${skill_name}"
+    target="${OPENCLAW_HOME}/skills/${skill_name}"
     ln -sf "$skill_dir" "$target"
 done
 
