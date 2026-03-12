@@ -69,6 +69,35 @@ for script_dir in "${SYSTEM_DIR}/workspace/scripts/"*; do
     ln -sf "$script_dir" "$target"
 done
 
+echo "  - 添加 openclaw_enhance 章节到 AGENTS.md 和 TOOLS.md"
+add_enhance_section() {
+    local file=$1
+    local ref_path=$2
+    
+    if [ -f "$file" ]; then
+        if grep -q "# openclaw_enhance" "$file"; then
+            sed -i.bak '/# openclaw_enhance/,$d' "$file"
+            rm -f "${file}.bak"
+        fi
+        echo "
+# openclaw_enhance
+
+你还有一份**更高优先级的**的指南，去这里能看到 \`$ref_path\`" >> "$file"
+    fi
+}
+
+add_enhance_section "${OPENCLAW_HOME}/workspace/AGENTS.md" "../openclaw-enhanced/system/workspace/AGENTS.md"
+
+for agent in orchestrator professor systemhelper scriptproducer reviewer watchdog; do
+    add_enhance_section "${OPENCLAW_HOME}/workspace/functional-workspace/${agent}/AGENTS.md" "../../openclaw-enhanced/system/workspace/functional-workspace/${agent}/AGENTS.md"
+    add_enhance_section "${OPENCLAW_HOME}/workspace/functional-workspace/${agent}/TOOLS.md" "../../openclaw-enhanced/system/workspace/functional-workspace/${agent}/TOOLS.md"
+done
+
+for agent in ops game-design finance creative km; do
+    add_enhance_section "${OPENCLAW_HOME}/workspace/domain-workspace/${agent}/AGENTS.md" "../../openclaw-enhanced/system/workspace/domain-workspace/${agent}/AGENTS.md"
+    add_enhance_section "${OPENCLAW_HOME}/workspace/domain-workspace/${agent}/TOOLS.md" "../../openclaw-enhanced/system/workspace/domain-workspace/${agent}/TOOLS.md"
+done
+
 echo '{"version":"1.0.0","installed_at":"'$(date -Iseconds)'"}' > "$MANIFEST"
 
 echo "==> 安装完成！"
