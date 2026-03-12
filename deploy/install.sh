@@ -194,11 +194,16 @@ if [ -d "${SYSTEM_DIR}/hooks" ]; then
 fi
 
 echo "==> 部署 agents..."
-for agent_dir in "${PROJECT_ROOT}/src/functional-workspace/"* "${PROJECT_ROOT}/src/domain-workspace/"*; do
-    [ -d "$agent_dir" ] || continue
-    agent_name=$(basename "$agent_dir")
+agents_source_dir="${PROJECT_ROOT}/src/system/openclaw-enhance/agents"
+for agent_file in "${agents_source_dir}/"*.md; do
+    [ -f "$agent_file" ] || continue
+    agent_name=$(basename "$agent_file" .md)
     
-    if [[ "$agent_dir" == *"/functional-workspace/"* ]]; then
+    if [ "$agent_name" = "main" ]; then
+        continue
+    fi
+    
+    if [[ "$agent_name" =~ ^(orchestrator|professor|systemhelper|scriptproducer|reviewer|watchdog)$ ]]; then
         target_dir="${OPENCLAW_HOME}/workspace/functional-workspace/${agent_name}"
         workspace_type="functional-workspace"
     else
@@ -208,12 +213,12 @@ for agent_dir in "${PROJECT_ROOT}/src/functional-workspace/"* "${PROJECT_ROOT}/s
     
     mkdir -p "$target_dir"
     
-    # 处理 AGENTS.md
     agents_md="$target_dir/AGENTS.md"
     agents_section="
 # openclaw_enhance
 
-你有一份超级升级的配置，去这里能看到 `system/openclaw-enhance/agents/${agent_name}.md`"
+增强配置详见：
+#[[file:~/.openclaw/workspace/system/openclaw-enhance/agents/${agent_name}.md]]"
     
     if [ -f "$agents_md" ]; then
         if ! grep -q "# openclaw_enhance" "$agents_md"; then
@@ -228,7 +233,6 @@ for agent_dir in "${PROJECT_ROOT}/src/functional-workspace/"* "${PROJECT_ROOT}/s
         update_manifest "agents" "${agent_name}/AGENTS" '{"type":"section","action":"created","has_backup":False}'
     fi
     
-    # 处理 TOOLS.md
     tools_md="$target_dir/TOOLS.md"
     tools_section="
 # openclaw_enhance
