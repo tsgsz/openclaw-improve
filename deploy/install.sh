@@ -242,6 +242,23 @@ for agent_dir in "${PROJECT_ROOT}/src/functional-workspace/"* "${PROJECT_ROOT}/s
     fi
 done
 
+echo "==> 部署 main agent..."
+main_agents_md="${OPENCLAW_HOME}/workspace/AGENTS.md"
+main_section="
+# openclaw_enhance
+
+增强配置详见：
+#[[file:~/.openclaw/workspace/system/openclaw-enhance/agents/main.md]]"
+
+if [ -f "$main_agents_md" ]; then
+    if ! grep -q "# openclaw_enhance" "$main_agents_md"; then
+        echo "更新 main AGENTS.md..."
+        backup_existing "$main_agents_md" "agents" "main/AGENTS"
+        echo "$main_section" >> "$main_agents_md"
+        update_manifest "agents" "main/AGENTS" '{"type":"section","action":"appended","has_backup":True}'
+    fi
+fi
+
 echo "==> 安装完成！"
 echo "配置已部署到: ${SYSTEM_DIR}"
 echo "安装清单: ${MANIFEST}"
