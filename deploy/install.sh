@@ -55,7 +55,7 @@ for plugin_dir in "${SYSTEM_DIR}/plugins/"*; do
 done
 
 echo "  - 软链 skills"
-for skill_dir in "${SYSTEM_DIR}/workspace/system/openclaw-enhance/skills/"*; do
+for skill_dir in "${SYSTEM_DIR}/workspace/skills/"*; do
     [ -d "$skill_dir" ] || continue
     skill_name=$(basename "$skill_dir")
     target="${OPENCLAW_HOME}/workspace/skills/${skill_name}"
@@ -68,29 +68,6 @@ for script_dir in "${SYSTEM_DIR}/workspace/scripts/"*; do
     script_name=$(basename "$script_dir")
     target="${OPENCLAW_HOME}/workspace/scripts/${script_name}"
     ln -sf "$script_dir" "$target"
-done
-
-echo "  - 添加 agents 章节"
-agents_source="${SYSTEM_DIR}/workspace/system/openclaw-enhance/agents"
-for agent_file in "${agents_source}/"*.md; do
-    [ -f "$agent_file" ] || continue
-    agent_name=$(basename "$agent_file" .md)
-    
-    if [ "$agent_name" = "main" ]; then
-        agents_md="${OPENCLAW_HOME}/workspace/AGENTS.md"
-    elif [[ "$agent_name" =~ ^(orchestrator|professor|systemhelper|scriptproducer|reviewer|watchdog)$ ]]; then
-        agents_md="${OPENCLAW_HOME}/workspace/functional-workspace/${agent_name}/AGENTS.md"
-    else
-        agents_md="${OPENCLAW_HOME}/workspace/domain-workspace/${agent_name}/AGENTS.md"
-    fi
-    
-    if [ -f "$agents_md" ] && ! grep -q "# openclaw_enhance" "$agents_md"; then
-        echo "
-# openclaw_enhance
-
-增强配置详见：
-#[[file:~/.openclaw/openclaw-enhanced/system/workspace/system/openclaw-enhance/agents/${agent_name}.md]]" >> "$agents_md"
-    fi
 done
 
 echo '{"version":"1.0.0","installed_at":"'$(date -Iseconds)'"}' > "$MANIFEST"
