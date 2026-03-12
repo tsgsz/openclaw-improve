@@ -1,0 +1,16 @@
+{
+  "id": "spawn-monitor",
+  "name": "spawn-monitor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "openclaw": {
+    "extensions": ["./index.ts"]
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "enabled": { "type": "boolean", "default": true }
+    }
+  }
+}
