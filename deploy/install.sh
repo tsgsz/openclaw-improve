@@ -87,6 +87,7 @@ add_enhance_section() {
 }
 
 add_enhance_section "${OPENCLAW_HOME}/workspace/AGENTS.md" "../openclaw-enhanced/system/workspace/AGENTS.md"
+add_enhance_section "${OPENCLAW_HOME}/workspace/scripts/README.md" "../openclaw-enhanced/system/workspace/scripts/README.md"
 
 for agent in orchestrator professor systemhelper scriptproducer reviewer watchdog; do
     add_enhance_section "${OPENCLAW_HOME}/workspace/functional-workspace/${agent}/AGENTS.md" "../../openclaw-enhanced/system/workspace/functional-workspace/${agent}/AGENTS.md"
