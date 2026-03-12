@@ -6,22 +6,36 @@
 
 ### 基本安装
 ```bash
-# 默认安装到 ~/.openclaw
+# 默认安装到 ~/.openclaw（生产模式：拷贝文件）
 ./deploy/install.sh
+
+# 开发模式（使用软链，方便调试）
+./deploy/install.sh --dev
 
 # 指定安装目录
 ./deploy/install.sh --openclaw-home /custom/path
 
-# 使用环境变量
-export OPENCLAW_HOME=/custom/path
-./deploy/install.sh
+# 组合使用
+./deploy/install.sh --openclaw-home /custom/path --dev
 ```
+
+### 开发模式 vs 生产模式
+
+**生产模式（默认）**：
+- 拷贝所有文件到目标目录
+- 修改源代码不影响已部署的系统
+- 适合稳定使用
+
+**开发模式（--dev）**：
+- 使用软链接到源代码目录
+- 修改源代码立即生效
+- 适合开发调试
 
 ### 测试环境安装（推荐）
 ```bash
 # 使用独立测试目录，不影响生产环境
 export OPENCLAW_HOME=/tmp/openclaw-test
-./deploy/install.sh
+./deploy/install.sh --dev
 # 测试...
 ./deploy/uninstall.sh
 ```

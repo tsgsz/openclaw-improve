@@ -3,16 +3,36 @@ set -e
 
 OPENCLAW_HOME="${OPENCLAW_HOME:-${HOME}/.openclaw}"
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DEV_MODE=false
 
-if [ "$1" = "--openclaw-home" ]; then
-    OPENCLAW_HOME="$2"
-fi
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --openclaw-home)
+            OPENCLAW_HOME="$2"
+            shift 2
+            ;;
+        --dev)
+            DEV_MODE=true
+            shift
+            ;;
+        *)
+            echo "未知选项: $1"
+            echo "用法: $0 [--openclaw-home PATH] [--dev]"
+            exit 1
+            ;;
+    esac
+done
 
 SYSTEM_DIR="${OPENCLAW_HOME}/workspace/system/openclaw-enhance"
 MANIFEST="${SYSTEM_DIR}/manifest.json"
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
 echo "使用 Openclaw 目录: ${OPENCLAW_HOME}"
+if [ "$DEV_MODE" = true ]; then
+    echo "开发模式: 使用软链"
+else
+    echo "生产模式: 使用拷贝"
+fi
 
 update_manifest() {
     local key=$1
@@ -87,16 +107,27 @@ mkdir -p "${OPENCLAW_HOME}/hooks"
 mkdir -p "${SYSTEM_DIR}"
 
 echo "==> 部署系统配置..."
-cp -r "${PROJECT_ROOT}/src/system/openclaw-enhance/"* "${SYSTEM_DIR}/"
+if [ "$DEV_MODE" = true ]; then
+    ln -sf "${PROJECT_ROOT}/src/system/openclaw-enhance" "${SYSTEM_DIR}"
+else
+    cp -r "${PROJECT_ROOT}/src/system/openclaw-enhance/"* "${SYSTEM_DIR}/"
+fi
 
 echo "==> 部署 scripts..."
 if [ -d "${PROJECT_ROOT}/src/scripts" ]; then
     for subdir in "${PROJECT_ROOT}/src/scripts/"*/; do
         if [ -d "$subdir" ]; then
             subdir_name=$(basename "$subdir")
-            mkdir -p "${OPENCLAW_HOME}/workspace/scripts/${subdir_name}"
-            cp -r "$subdir"* "${OPENCLAW_HOME}/workspace/scripts/${subdir_name}/"
-            chmod +x "${OPENCLAW_HOME}/workspace/scripts/${subdir_name}/"*.py 2>/dev/null || true
+            target_dir="${OPENCLAW_HOME}/workspace/scripts/${subdir_name}"
+            mkdir -p "$(dirname "$target_dir")"
+            
+            if [ "$DEV_MODE" = true ]; then
+                ln -sf "$subdir" "$target_dir"
+            else
+                mkdir -p "$target_dir"
+                cp -r "$subdir"* "$target_dir/"
+                chmod +x "$target_dir/"*.py 2>/dev/null || true
+            fi
         fi
     done
 fi
@@ -172,20 +203,42 @@ for agent_dir in "${PROJECT_ROOT}/src/functional-workspace/"* "${PROJECT_ROOT}/s
     
     mkdir -p "$target_dir"
     
+    # 处理 AGENTS.md
     agents_md="$target_dir/AGENTS.md"
-    reference_line="# OPENCLAW_ENHANCE_REFERENCE
+    agents_section="
+# openclaw_enhance
+
+增强配置详见：
 #[[file:~/.openclaw/workspace/system/openclaw-enhance/agents/${agent_name}.md]]"
     
     if [ -f "$agents_md" ]; then
-        if ! grep -q "OPENCLAW_ENHANCE_REFERENCE" "$agents_md"; then
-            echo "更新 $agent_name AGENTS.md 引用..."
-            backup_existing "$agents_md" "agents" "${workspace_type}/${agent_name}"
-            echo -e "\n$reference_line" >> "$agents_md"
-            update_manifest "agents" "$agent_name" '{"type":"reference","action":"appended","has_backup":True}'
+        if ! grep -q "# openclaw_enhance" "$agents_md"; then
+            echo "更新 $agent_name AGENTS.md..."
+            backup_existing "$agents_md" "agents" "${workspace_type}/${agent_name}/AGENTS"
+            echo "$agents_section" >> "$agents_md"
+            update_manifest "agents" "${agent_name}/AGENTS" '{"type":"section","action":"appended","has_backup":True}'
         fi
     else
-        echo "$reference_line" > "$agents_md"
-        update_manifest "agents" "$agent_name" '{"type":"reference","action":"created","has_backup":False}'
+        echo "创建 $agent_name AGENTS.md..."
+        echo "$agents_section" > "$agents_md"
+        update_manifest "agents" "${agent_name}/AGENTS" '{"type":"section","action":"created","has_backup":False}'
+    fi
+    
+    # 处理 TOOLS.md
+    tools_md="$target_dir/TOOLS.md"
+    tools_section="
+# openclaw_enhance
+
+增强工具详见：
+#[[file:~/.openclaw/workspace/system/openclaw-enhance/agents/${agent_name}-tools.md]]"
+    
+    if [ -f "$tools_md" ]; then
+        if ! grep -q "# openclaw_enhance" "$tools_md"; then
+            echo "更新 $agent_name TOOLS.md..."
+            backup_existing "$tools_md" "agents" "${workspace_type}/${agent_name}/TOOLS"
+            echo "$tools_section" >> "$tools_md"
+            update_manifest "agents" "${agent_name}/TOOLS" '{"type":"section","action":"appended","has_backup":True}'
+        fi
     fi
 done
 
