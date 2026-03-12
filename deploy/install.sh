@@ -93,7 +93,12 @@ backup_existing() {
     
     echo "备份 $type/$name 到 backups/..."
     mkdir -p "$(dirname "$backup_dir")"
-    mv "$src" "$backup_dir"
+    
+    if [ "$type" = "agents" ]; then
+        cp "$src" "$backup_dir"
+    else
+        mv "$src" "$backup_dir"
+    fi
     add_backup_record "${type}/${name}" "backups/${type}/${name}-${TIMESTAMP}"
 }
 
@@ -208,8 +213,7 @@ for agent_dir in "${PROJECT_ROOT}/src/functional-workspace/"* "${PROJECT_ROOT}/s
     agents_section="
 # openclaw_enhance
 
-增强配置详见：
-#[[file:~/.openclaw/workspace/system/openclaw-enhance/agents/${agent_name}.md]]"
+你有一份超级升级的配置，去这里能看到 `system/openclaw-enhance/agents/${agent_name}.md`"
     
     if [ -f "$agents_md" ]; then
         if ! grep -q "# openclaw_enhance" "$agents_md"; then
